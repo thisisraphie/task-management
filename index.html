@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">TaskFlow</span>
+      <span class="project-name">Sprint 1</span>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Search tickets…" />
+      <select id="filter-tag">
+        <option value="">All tags</option>
+        <option value="feat">Feature</option>
+        <option value="bug">Bug</option>
+        <option value="design">Design</option>
+        <option value="docs">Docs</option>
+        <option value="perf">Performance</option>
+      </select>
+      <select id="filter-priority">
+        <option value="">All priorities</option>
+        <option value="high">High</option>
+        <option value="med">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <button class="btn primary" id="new-ticket-btn">+ New ticket</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-label" id="progress-label">0% complete</span>
+    </div>
+    <div class="board" id="board"></div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal" id="modal">
+      <h3 id="modal-heading">Create ticket</h3>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="m-title" placeholder="What needs to be done?" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Column</label>
+          <select id="m-col">
+            <option value="todo">To do</option>
+            <option value="inprog">In progress</option>
+            <option value="review">In review</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority</label>
+          <select id="m-priority">
+            <option value="high">High</option>
+            <option value="med">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tag</label>
+          <select id="m-tag">
+            <option value="feat">Feature</option>
+            <option value="bug">Bug</option>
+            <option value="design">Design</option>
+            <option value="docs">Docs</option>
+            <option value="perf">Performance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Assignee</label>
+          <select id="m-assignee"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Due date</label>
+        <input type="date" id="m-due" />
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="m-desc" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn danger hidden" id="del-btn">Delete ticket</button>
+        <button class="btn" id="cancel-btn">Cancel</button>
+        <button class="btn primary" id="save-btn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
