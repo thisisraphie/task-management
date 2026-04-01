@@ -12,6 +12,12 @@
       <span class="logo">TaskFlow</span>
       <span class="project-name">Sprint 1</span>
     </div>
+    <div class="header-center">
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-view="board">Board</button>
+        <button class="nav-tab" data-view="calendar">Calendar</button>
+      </nav>
+    </div>
     <div class="toolbar">
       <input type="text" id="search" placeholder="Search tickets…" />
       <select id="filter-tag">
@@ -32,13 +38,31 @@
     </div>
   </header>
 
-  <main class="main">
+  <!-- Board view -->
+  <main class="main" id="view-board">
     <div class="stats-bar" id="stats-bar"></div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <span class="progress-label" id="progress-label">0% complete</span>
     </div>
     <div class="board" id="board"></div>
+  </main>
+
+  <!-- Calendar view -->
+  <main class="main hidden" id="view-calendar">
+    <div class="cal-header">
+      <button class="btn" id="cal-prev">&#8592;</button>
+      <span class="cal-month-label" id="cal-month-label"></span>
+      <button class="btn" id="cal-next">&#8594;</button>
+      <button class="btn" id="cal-today">Today</button>
+    </div>
+    <div class="cal-grid-wrap">
+      <div class="cal-day-names">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+        <div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
   </main>
 
   <!-- Modal -->

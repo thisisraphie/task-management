@@ -20,15 +20,16 @@ const ASSIGNEES = [
 const TAG_LABELS = { feat: 'Feature', bug: 'Bug', design: 'Design', docs: 'Docs', perf: 'Performance' };
 const PRIORITY_LABELS = { high: '↑ High', med: '→ Med', low: '↓ Low' };
 
+// ── Tickets ─────────────────────────────────────────────────────────────────────
 const DEFAULT_TICKETS = [
-  { id: 1, title: 'Set up project boilerplate & CI pipeline',    col: 'done',   tag: 'feat',   priority: 'high', assignee: 0, due: '2024-12-01', desc: '' },
-  { id: 2, title: 'Design system tokens & color palette',        col: 'done',   tag: 'design', priority: 'med',  assignee: 1, due: '2024-12-05', desc: '' },
-  { id: 3, title: 'Implement drag-and-drop card movement',       col: 'review', tag: 'feat',   priority: 'high', assignee: 2, due: '2025-01-10', desc: '' },
-  { id: 4, title: 'Fix memory leak in WebSocket handler',        col: 'inprog', tag: 'bug',    priority: 'high', assignee: 0, due: '2025-01-08', desc: '' },
-  { id: 5, title: 'Write API documentation for v2 endpoints',   col: 'inprog', tag: 'docs',   priority: 'low',  assignee: 3, due: '2025-01-15', desc: '' },
-  { id: 6, title: 'Optimize bundle size — lazy load routes',    col: 'todo',   tag: 'perf',   priority: 'med',  assignee: 1, due: '2025-01-20', desc: '' },
-  { id: 7, title: 'Add keyboard shortcuts for power users',      col: 'todo',   tag: 'feat',   priority: 'low',  assignee: 4, due: '2025-01-25', desc: '' },
-  { id: 8, title: 'Broken avatar upload on mobile Safari',       col: 'review', tag: 'bug',    priority: 'high', assignee: 2, due: '2025-01-09', desc: '' },
+  { id: 1, title: 'Set up project boilerplate & CI pipeline', col: 'done',   tag: 'feat',   priority: 'high', assignee: 0, due: '2025-12-01', desc: '' },
+  { id: 2, title: 'Design system tokens & color palette', col: 'done',   tag: 'design', priority: 'med',  assignee: 1, due: '2025-12-05', desc: '' },
+  { id: 3, title: 'Implement drag-and-drop card movement', col: 'review', tag: 'feat',   priority: 'high', assignee: 2, due: '2026-01-10', desc: '' },
+  { id: 4, title: 'Fix memory leak in WebSocket handler', col: 'inprog', tag: 'bug',    priority: 'high', assignee: 0, due: '2026-01-08', desc: '' },
+  { id: 5, title: 'Write API documentation for v2 endpoints',col: 'inprog', tag: 'docs',   priority: 'low',  assignee: 3, due: '2026-04-01', desc: '' },
+  { id: 6, title: 'Optimize bundle size — lazy load routes', col: 'todo',   tag: 'perf',   priority: 'med',  assignee: 1, due: '2026-05-14', desc: '' },
+  { id: 7, title: 'Add keyboard shortcuts for power users', col: 'todo',   tag: 'feat',   priority: 'low',  assignee: 4, due: '2026-04-30', desc: '' },
+  { id: 8, title: 'Broken avatar upload on mobile Safari', col: 'review', tag: 'bug',    priority: 'high', assignee: 2, due: '2026-04-18', desc: '' },
 ];
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -249,7 +250,7 @@ function saveModal() {
 
   saveTickets();
   closeModal();
-  render();
+  currentView === 'calendar' ? renderCalendar() : render();
 }
 
 function deleteTicket() {
@@ -257,7 +258,7 @@ function deleteTicket() {
   tickets = tickets.filter(x => x.id !== editId);
   saveTickets();
   closeModal();
-  render();
+  currentView === 'calendar' ? renderCalendar() : render();
 }
 
 // ── Keyboard shortcuts ────────────────────────────────────────────────────────
@@ -280,19 +281,142 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── View switching ────────────────────────────────────────────────────────────
+
+let currentView = 'board';
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById('view-board').classList.toggle('hidden', view !== 'board');
+  document.getElementById('view-calendar').classList.toggle('hidden', view !== 'calendar');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  if (view === 'calendar') renderCalendar();
+  else render();
+}
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-based
+
+function renderCalendar() {
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+  const todayStr = today();
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+  const totalCells  = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  // Group tickets by due date
+  const byDate = {};
+  tickets.forEach(t => { if (t.due) { (byDate[t.due] = byDate[t.due] || []).push(t); } });
+
+  for (let i = 0; i < totalCells; i++) {
+    let day, dateStr, isOther = false;
+    if (i < firstDay) {
+      day = daysInPrev - firstDay + i + 1;
+      const m = String(calMonth).padStart(2, '0');
+      const y = calMonth === 0 ? calYear - 1 : calYear;
+      const mm = calMonth === 0 ? '12' : m;
+      dateStr = `${y}-${mm}-${String(day).padStart(2, '0')}`;
+      isOther = true;
+    } else if (i >= firstDay + daysInMonth) {
+      day = i - firstDay - daysInMonth + 1;
+      const m = calMonth + 2;
+      const y = calMonth === 11 ? calYear + 1 : calYear;
+      const mm = String(calMonth === 11 ? 1 : m).padStart(2, '0');
+      dateStr = `${y}-${mm}-${String(day).padStart(2, '0')}`;
+      isOther = true;
+    } else {
+      day = i - firstDay + 1;
+      dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (isOther ? ' other-month' : '') + (dateStr === todayStr ? ' is-today' : '');
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'cal-date';
+    dateEl.textContent = day;
+    cell.appendChild(dateEl);
+
+    const dayTickets = byDate[dateStr] || [];
+    const MAX_SHOW = 3;
+    dayTickets.slice(0, MAX_SHOW).forEach(t => {
+      const chip = document.createElement('div');
+      chip.className = `cal-chip p-${t.priority}${t.col === 'done' ? ' col-done' : ''}`;
+      chip.title = t.title;
+      chip.textContent = t.title;
+      chip.addEventListener('click', () => openModal(t.id));
+      cell.appendChild(chip);
+    });
+    if (dayTickets.length > MAX_SHOW) {
+      const more = document.createElement('div');
+      more.className = 'cal-more';
+      more.textContent = `+${dayTickets.length - MAX_SHOW} more`;
+      more.addEventListener('click', () => {
+        dayTickets.forEach(t => openModal(t.id));
+      });
+      cell.appendChild(more);
+    }
+
+    grid.appendChild(cell);
+  }
+
+  // Tickets with no due date
+  const noDue = tickets.filter(t => !t.due);
+  const banner = document.querySelector('.no-due-banner') || (() => {
+    const b = document.createElement('div');
+    b.className = 'no-due-banner';
+    document.getElementById('view-calendar').appendChild(b);
+    return b;
+  })();
+  if (noDue.length) {
+    banner.innerHTML = `<span class="no-due-label">No due date:</span>` +
+      noDue.map(t => `<div class="cal-chip p-${t.priority}" style="cursor:pointer" data-id="${t.id}">${escHtml(t.title)}</div>`).join('');
+    banner.querySelectorAll('.cal-chip').forEach(chip => {
+      chip.addEventListener('click', () => openModal(Number(chip.dataset.id)));
+    });
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+
+
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 populateAssigneeSelect();
 
-document.getElementById('search').addEventListener('input', render);
-document.getElementById('filter-tag').addEventListener('change', render);
-document.getElementById('filter-priority').addEventListener('change', render);
+document.getElementById('search').addEventListener('input', () => { if (currentView === 'board') render(); else renderCalendar(); });
+document.getElementById('filter-tag').addEventListener('change', () => { if (currentView === 'board') render(); else renderCalendar(); });
+document.getElementById('filter-priority').addEventListener('change', () => { if (currentView === 'board') render(); else renderCalendar(); });
 document.getElementById('new-ticket-btn').addEventListener('click', () => openModal());
 document.getElementById('cancel-btn').addEventListener('click', closeModal);
 document.getElementById('save-btn').addEventListener('click', saveModal);
 document.getElementById('del-btn').addEventListener('click', deleteTicket);
 document.getElementById('modal-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-backdrop')) closeModal();
+});
+
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchView(tab.dataset.view));
+});
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar();
+});
+document.getElementById('cal-today').addEventListener('click', () => {
+  calYear = new Date().getFullYear(); calMonth = new Date().getMonth(); renderCalendar();
 });
 
 render();
