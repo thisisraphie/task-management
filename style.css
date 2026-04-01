@@ -316,12 +316,29 @@ body {
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
 /* ── Nav tabs ── */
-.header { justify-content: space-between; }
-.header-center { position: absolute; left: 50%; transform: translateX(-50%); }
-.nav-tabs { display: flex; gap: 2px; background: var(--bg); border-radius: 8px; padding: 3px; }
+.header {
+   justify-content: space-between; 
+  }
+.header-center { 
+  position: static;
+  margin-left: auto; 
+}
+.nav-tabs { 
+  display: flex;
+   gap: 2px;
+    background: var(--bg);
+     border-radius: 8px;
+      padding: 3px;
+}
 .nav-tab {
-  height: 28px; padding: 0 14px; border-radius: 6px; font-size: 13px; font-family: inherit;
-  font-weight: 500; border: none; background: transparent; color: var(--text-2); cursor: pointer;
+  height: 28px;
+  padding: 0 14px; 
+  border-radius: 6px; 
+  font-size: 13px; 
+  font-family: inherit;
+  font-weight: 500; 
+  border: none; background: transparent; 
+  color: var(--text-2); cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }
 .nav-tab:hover { color: var(--text); }
@@ -367,7 +384,7 @@ body {
 .cal-chip.p-med  { border-left-color: #d97706; background: #fffbeb; color: #78350f; }
 .cal-chip.p-low  { border-left-color: #16a34a; background: #f0fdf4; color: #14532d; }
 .cal-chip.col-done { opacity: 0.45; text-decoration: line-through; }
-.cal-more { font-size: 10px; color: var(--text-3); padding: 1px 4px; cursor: pointer; }
+.cal-more { font-size: 10px; color: var(--text-3); padding: 6px 6px; cursor: pointer; }
 .cal-more:hover { color: var(--accent); }
 .no-due-banner {
   margin-top: 12px; padding: 10px 14px; background: var(--bg); border-radius: var(--radius);

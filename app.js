@@ -388,6 +388,48 @@ function renderCalendar() {
   }
 }
 
+// ── Editable project name ─────────────────────────────────────────────────────
+const projectNameEl = document.getElementById('project-name');
+if (projectNameEl) {
+  projectNameEl.addEventListener('dblclick', function() {
+    const currentName = this.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.className = 'project-name-input';
+    input.style.cssText = `
+      font-size: 13px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--accent);
+      background: white;
+      font-family: inherit;
+      outline: none;
+    `;
+    
+    this.replaceWith(input);
+    input.focus();
+    
+    const saveName = () => {
+      const newName = input.value.trim() || 'TaskFlow';
+      projectNameEl.textContent = newName;
+      input.replaceWith(projectNameEl);
+      localStorage.setItem('project_name', newName);
+    };
+    
+    input.addEventListener('blur', saveName);
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') saveName();
+    });
+  });
+}
+
+// Load saved project name on startup ─────────────────────────────────────────────────────────────────
+const savedName = localStorage.getItem('project_name');
+if (savedName && projectNameEl) {
+  projectNameEl.textContent = savedName;
+}
+
 
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
